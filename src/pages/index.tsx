@@ -24,7 +24,10 @@ export default function Home() {
     const query = search ? `?search=${search}` : "";
     fetch(`/api/hello${query}`)
       .then((res) => res.json())
-      .then((data) => setPokemons(data.pokemons))
+      .then((data) => {
+        console.log("Data from API route:", data);
+        setPokemons(data.pokemons);
+      })
       .catch((err) => console.error(err));
   }, [search]);
 
