@@ -1,26 +1,28 @@
-import { Pokemon } from "@/types/pokemon";
+import { Ability, Pokemon } from "@/types/pokemon";
 
 export interface PokemonWithoutAbilities    {
     name: string;
     id: number;
 }
 export async function fetchPokemons(name: string): Promise<PokemonWithoutAbilities[]> {
-    const query = name ? `?search=${name}` : "";
+
     try {
-        const response = await fetch(`/api/pokemons${query}`);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
         const data = await response.json();
-        return data.pokemons;
+        if(Array.isArray(data))
+            return data;
+        else return [data];
     } catch (error) {
         console.error("Error fetching pokemons:", error);
         return [];
     }
 }
 
-export async function getPokemonAbilities(pokemonId: number): Promise<Pokemon["abilities"]> {
+export async function getPokemonAbilities(pokemonId: number): Promise<Ability[]> {
     try {
-        const response = await fetch(`/api/abilities?id=${pokemonId}`);
+        const response = await fetch(`https://pokeapi.co/api/v2/ability/${pokemonId}`);
         const data = await response.json();
-        return data.abilities;
+        return data;
     } catch (error) {
         console.error("Error fetching abilities:", error);
         return [];
@@ -28,8 +30,9 @@ export async function getPokemonAbilities(pokemonId: number): Promise<Pokemon["a
 }
 
 
-export async function getPokemonsWithAbilities(name:string): Promise<Pokemon[]> {
+export async function getPokemonsWithAbilities(name:string){
     const pokemonsWithoutAbilities = await fetchPokemons(name);
+    console.log(pokemonsWithoutAbilities);
     const abilities = await Promise.all(pokemonsWithoutAbilities.map((pokemon) => getPokemonAbilities(pokemon.id)));
     console.log(abilities);
     return pokemonsWithoutAbilities.map((pokemon, index) => ({
